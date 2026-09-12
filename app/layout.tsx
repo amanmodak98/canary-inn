@@ -24,7 +24,16 @@ const caveat = Caveat({
   weight: ["400", "500"],
 });
 
-const SITE = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
+function resolveSiteUrl(): string {
+  const raw = process.env.NEXT_PUBLIC_SITE_URL?.trim();
+  if (raw && /^https?:\/\//i.test(raw)) return raw;
+  // Vercel exposes the deployment URL via VERCEL_URL (no protocol).
+  const vercel = process.env.VERCEL_URL?.trim();
+  if (vercel) return `https://${vercel}`;
+  return "http://localhost:3000";
+}
+
+const SITE = resolveSiteUrl();
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE),

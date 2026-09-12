@@ -4,7 +4,14 @@ import { ROOMS } from "@/data/rooms";
 import { MENU_CATEGORIES } from "@/data/menu";
 
 export default function sitemap(): MetadataRoute.Sitemap {
-  const site = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
+  const raw = process.env.NEXT_PUBLIC_SITE_URL?.trim();
+  const vercel = process.env.VERCEL_URL?.trim();
+  const site =
+    raw && /^https?:\/\//i.test(raw)
+      ? raw
+      : vercel
+        ? `https://${vercel}`
+        : "http://localhost:3000";
   const base = site.replace(/\/$/, "");
   const now = new Date();
 
