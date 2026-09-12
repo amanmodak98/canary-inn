@@ -1,0 +1,179 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --color-ivory: 250 247 242;
+  --color-cream: 242 235 224;
+  --color-sand: 232 220 199;
+  --color-beige: 212 197 169;
+  --color-clay: 160 130 109;
+  --color-mocha: 107 79 58;
+  --color-espresso: 61 40 23;
+  --color-coal: 28 22 17;
+  --color-ember: 194 114 74;
+  --color-ash: 138 126 110;
+  --color-gold: 176 138 82;
+  --color-leaf: 92 122 79;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  background: rgb(var(--color-ivory));
+  color: rgb(var(--color-coal));
+  font-feature-settings: "ss01", "ss02", "kern";
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  scroll-behavior: smooth;
+}
+
+::selection {
+  background: rgb(var(--color-ember) / 0.25);
+  color: rgb(var(--color-coal));
+}
+
+@layer base {
+  h1,
+  h2,
+  h3,
+  h4 {
+    font-family: var(--font-display), Georgia, serif;
+    font-weight: 400;
+    color: rgb(var(--color-coal));
+  }
+
+  body {
+    font-family: var(--font-body), system-ui, sans-serif;
+    line-height: 1.6;
+  }
+
+  /* Visible, editorial focus rings */
+  :focus-visible {
+    outline: 2px solid rgb(var(--color-ember));
+    outline-offset: 3px;
+    border-radius: 4px;
+  }
+}
+
+@layer components {
+  .eyebrow {
+    @apply text-eyebrow uppercase tracking-widest text-ash;
+  }
+
+  .btn-primary {
+    @apply inline-flex items-center justify-center gap-2 bg-coal text-ivory px-6 py-3 rounded-full text-sm uppercase tracking-widest font-medium transition-all duration-300 ease-smooth hover:bg-espresso hover:gap-3;
+  }
+
+  .btn-secondary {
+    @apply inline-flex items-center justify-center gap-2 border border-coal/30 text-coal px-6 py-3 rounded-full text-sm uppercase tracking-widest font-medium transition-all duration-300 ease-smooth hover:bg-coal hover:text-ivory;
+  }
+
+  .btn-ember {
+    @apply inline-flex items-center justify-center gap-2 bg-ember text-ivory px-6 py-3 rounded-full text-sm uppercase tracking-widest font-medium transition-all duration-300 ease-smooth hover:bg-coal;
+  }
+
+  .container-tight {
+    @apply mx-auto max-w-[1280px] px-5 lg:px-10;
+  }
+
+  .section {
+    @apply py-20 lg:py-32;
+  }
+
+  .hairline {
+    @apply h-px w-12 bg-coal/30;
+  }
+
+  .display-italic {
+    font-family: var(--font-accent), cursive;
+    color: rgb(var(--color-ember));
+  }
+}
+
+/* Editorial utilities */
+.shimmer-line {
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgb(var(--color-coal) / 0.2) 50%,
+    transparent 100%
+  );
+  background-size: 1000px 100%;
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -1000px 0;
+  }
+  100% {
+    background-position: 1000px 0;
+  }
+}
+
+.shimmer {
+  animation: shimmer 2.5s linear infinite;
+  background: linear-gradient(
+    90deg,
+    rgb(var(--color-cream)) 0%,
+    rgb(var(--color-sand) / 0.8) 50%,
+    rgb(var(--color-cream)) 100%
+  );
+  background-size: 1000px 100%;
+}
+
+/* Lenis smooth scroll */
+html.lenis,
+html.lenis body {
+  height: auto;
+}
+
+.lenis.lenis-smooth {
+  scroll-behavior: auto !important;
+}
+
+.lenis.lenis-smooth [data-lenis-prevent] {
+  overscroll-behavior: contain;
+}
+
+.lenis.lenis-stopped {
+  overflow: hidden;
+}
+
+/* Reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* Custom scrollbar (subtle) */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-track {
+  background: rgb(var(--color-cream));
+}
+::-webkit-scrollbar-thumb {
+  background: rgb(var(--color-clay) / 0.5);
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgb(var(--color-clay) / 0.8);
+}
+
+/* Hide scrollbar utility for chips scrollers */
+.no-scrollbar {
+  scrollbar-width: none;
+}
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}

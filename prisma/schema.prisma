@@ -1,0 +1,212 @@
+// Canary Inn Hazaribagh — database schema
+// PostgreSQL via Neon. Serverless-compatible.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum OrderStatus {
+  RECEIVED
+  CONFIRMED
+  PREPARING
+  READY
+  SERVED
+  CANCELLED
+}
+
+enum AdminRole {
+  OWNER
+  MANAGER
+  STAFF
+}
+
+model AdminUser {
+  id           String    @id @default(cuid())
+  email        String    @unique
+  name         String
+  passwordHash String
+  role         AdminRole @default(STAFF)
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+  lastLoginAt  DateTime?
+}
+
+model Table {
+  id        String         @id @default(cuid())
+  // Human-visible label e.g. "Table 01" — NOT trusted for security.
+  label     String
+  slug      String         @unique
+  // location hint (e.g. "Garden", "Indoor", "Patio") — optional
+  zone      String?
+  active    Boolean        @default(true)
+  createdAt DateTime       @default(now())
+  updatedAt DateTime       @updatedAt
+  qrTokens  TableQrToken[]
+  orders    Order[]
+
+  @@index([active])
+}
+
+model TableQrToken {
+  id         String    @id @default(cuid())
+  tableId    String
+  // The actual secret used in the URL (?tableToken=...). Rotated on Regenerate.
+  token      String    @unique
+  active     Boolean   @default(true)
+  createdAt  DateTime  @default(now())
+  lastUsedAt DateTime?
+  table      Table     @relation(fields: [tableId], references: [id], onDelete: Cascade)
+
+  @@index([tableId])
+  @@index([active])
+}
+
+model MenuCategory {
+  id           String     @id @default(cuid())
+  name         String
+  slug         String     @unique
+  description  String?
+  displayOrder Int        @default(0)
+  active       Boolean    @default(true)
+  createdAt    DateTime   @default(now())
+  items        MenuItem[]
+
+  @@index([active, displayOrder])
+}
+
+model MenuItem {
+  id           String            @id @default(cuid())
+  categoryId   String
+  name         String
+  slug         String
+  description  String?
+  // Prices stored as integer paise (₹1 = 100 paise) to avoid float drift.
+  pricePaise   Int
+  imageUrl     String?
+  isVeg        Boolean           @default(true)
+  isAvailable  Boolean           @default(true)
+  displayOrder Int               @default(0)
+  active       Boolean           @default(true)
+  createdAt    DateTime          @default(now())
+  updatedAt    DateTime          @updatedAt
+  category     MenuCategory      @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  variants     MenuItemVariant[]
+
+  @@unique([categoryId, slug])
+  @@index([categoryId, displayOrder])
+  @@index([active, isAvailable])
+}
+
+model MenuItemVariant {
+  id             String   @id @default(cuid())
+  itemId         String
+  name           String
+  priceDeltaPaise Int     @default(0)
+  item           MenuItem @relation(fields: [itemId], references: [id], onDelete: Cascade)
+}
+
+model Order {
+  id           String      @id @default(cuid())
+  // Short human-friendly code shown to staff and guests (e.g. "CI-1042").
+  shortCode    String      @unique
+  tableId      String
+  status       OrderStatus @default(RECEIVED)
+  // Server-computed totals. Client-supplied totals are NEVER trusted.
+  subtotalPaise Int
+  taxPaise      Int
+  totalPaise    Int
+  notes        String?
+  // Hashed (salted) client IP for soft abuse-detection. Not personally identifying.
+  ipHash       String?
+  createdAt    DateTime    @default(now())
+  updatedAt    DateTime    @updatedAt
+  // For retention sweep performance. Drops > retentionDays (default 7).
+  items        OrderItem[]
+  table        Table       @relation(fields: [tableId], references: [id])
+
+  @@index([tableId, createdAt])
+  @@index([status])
+  @@index([createdAt])
+}
+
+model OrderItem {
+  id              String   @id @default(cuid())
+  orderId         String
+  menuItemId      String
+  // Snapshot at order time — protects history if menu later changes.
+  nameSnapshot    String
+  unitPricePaise  Int
+  quantity        Int
+  notes           String?
+  order           Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+
+  @@index([orderId])
+}
+
+model Room {
+  id            String         @id @default(cuid())
+  name          String
+  slug          String         @unique
+  description   String?
+  // Pricing optional — many channels won't expose direct price.
+  basePricePaise Int?
+  maxGuests     Int?
+  sizeSqft      Int?
+  bedType       String?
+  heroImage     String?
+  displayOrder  Int            @default(0)
+  active        Boolean        @default(true)
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+  amenities     RoomAmenity[]
+}
+
+model RoomAmenity {
+  id     String @id @default(cuid())
+  roomId String
+  name   String
+  room   Room   @relation(fields: [roomId], references: [id], onDelete: Cascade)
+
+  @@index([roomId])
+}
+
+model HotelAmenity {
+  id           String   @id @default(cuid())
+  name         String
+  icon         String   // Lucide icon key (e.g. "Wifi", "Car")
+  description  String?
+  displayOrder Int      @default(0)
+  active       Boolean  @default(true)
+
+  @@index([active, displayOrder])
+}
+
+model GalleryItem {
+  id           String   @id @default(cuid())
+  caption      String?
+  imageUrl     String
+  category     String?  // "rooms" | "dining" | "exterior" | "events"
+  displayOrder Int      @default(0)
+  active       Boolean  @default(true)
+  createdAt    DateTime @default(now())
+
+  @@index([active, displayOrder])
+}
+
+model ContactMessage {
+  id        String   @id @default(cuid())
+  name      String
+  email     String
+  phone     String?
+  subject   String?
+  body      String
+  createdAt DateTime @default(now())
+
+  // Contact messages are also purged after 7 days.
+  @@index([createdAt])
+}
