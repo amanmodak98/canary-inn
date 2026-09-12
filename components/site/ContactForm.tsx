@@ -7,7 +7,6 @@ import { HOTEL } from "@/lib/hotel";
 
 export default function ContactForm() {
   const [state, setState] = useState<"idle" | "sending" | "done" | "error">("idle");
-  const [error, setError] = useState<string | null>(null);
 
   function buildMailto(fd: FormData): string {
     const name = (fd.get("name") ?? "").toString().trim();
@@ -23,42 +22,20 @@ export default function ContactForm() {
       "",
       body,
     ];
-    const to = HOTEL.contact.email;
-    return `mailto:${to}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(lines.join("\n"))}`;
+    return `mailto:${HOTEL.contact.email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(lines.join("\n"))}`;
   }
 
-  async function onSubmit(e: React.FormEvent<HTMLFormElement>) {
+  function onSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     setState("sending");
-    setError(null);
-    const fd = new FormData(e.currentTarget);
-    const payload = Object.fromEntries(fd.entries());
-
+    // Opens the visitor's mail client with the form contents pre-filled.
+    // Backend is intentionally not in the loop — when it ships later,
+    // swap this for a fetch to /api/contact.
     try {
-      const res = await fetch("/api/contact", {
-        method: "POST",
-        headers: { "content-type": "application/json" },
-        body: JSON.stringify(payload),
-      });
-      if (!res.ok) {
-        const data = await res.json().catch(() => ({}));
-        throw new Error(data.error ?? "Could not send your message");
-      }
+      window.location.href = buildMailto(new FormData(e.currentTarget));
       setState("done");
-    } catch (err: any) {
-      // Backend unavailable (not wired yet on Vercel, or network error) —
-      // gracefully fall back to a mailto: link so the form is never a dead end.
-      const mailto = buildMailto(fd);
-      try {
-        window.location.href = mailto;
-        setState("done");
-        return;
-      } catch {
-        // If even mailto fails, surface the error.
-        setError(err.message ?? "Something went wrong");
-        setState("error");
-        return;
-      }
+    } catch {
+      setState("error");
     }
   }
 
@@ -70,11 +47,30 @@ export default function ContactForm() {
         className="border border-coal/10 p-10 text-center"
       >
         <Check className="mx-auto text-ember" size={32} />
-        <h3 className="mt-5 font-serif text-2xl text-coal">Message received.</h3>
+        <h3 className="mt-5 font-serif text-2xl text-coal">Message ready to send.</h3>
         <p className="mt-3 text-coal/70 max-w-sm mx-auto">
-          Thank you. The team will get back to you shortly — usually within the hour.
+          Your mail client should have opened with the message pre-filled. If not, write to us directly at{" "}
+          <a href={`mailto:${HOTEL.contact.email}`} className="text-ember underline-offset-2 hover:underline">
+            {HOTEL.contact.email}
+          </a>
+          .
         </p>
       </motion.div>
+    );
+  }
+
+  if (state === "error") {
+    return (
+      <div className="border border-ember/30 bg-ember/5 p-10 text-center">
+        <h3 className="font-serif text-2xl text-coal">Couldn't open your mail client.</h3>
+        <p className="mt-3 text-coal/70 max-w-sm mx-auto">
+          Please write to us directly at{" "}
+          <a href={`mailto:${HOTEL.contact.email}`} className="text-ember underline-offset-2 hover:underline">
+            {HOTEL.contact.email}
+          </a>
+          .
+        </p>
+      </div>
     );
   }
 
@@ -97,15 +93,13 @@ export default function ContactForm() {
         />
       </div>
 
-      {error && <div className="text-sm text-ember">{error}</div>}
-
       <div className="flex flex-wrap items-center gap-4">
         <button
           type="submit"
           disabled={state === "sending"}
           className="btn-primary disabled:opacity-60"
         >
-          {state === "sending" ? "Sending…" : "Send message"}
+          {state === "sending" ? "Opening mail…" : "Send message"}
           <Send size={16} />
         </button>
         <a

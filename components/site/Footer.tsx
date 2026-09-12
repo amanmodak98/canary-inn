@@ -33,7 +33,6 @@ export default function Footer() {
           <ul className="mt-4 space-y-3 text-sm">
             <li><Link href="/dining" className="hover:text-ember">Restaurant</Link></li>
             <li><Link href="/menu" className="hover:text-ember">Menu</Link></li>
-            <li><Link href="/menu" className="hover:text-ember">Order via QR</Link></li>
           </ul>
         </div>
 
@@ -61,7 +60,6 @@ export default function Footer() {
         <div className="container-tight py-6 flex flex-col md:flex-row justify-between gap-3 text-eyebrow uppercase tracking-widest text-ash">
           <div>© {new Date().getFullYear()} Canary Inn · Hazaribagh, Jharkhand</div>
           <div className="flex gap-6">
-            <Link href="/admin" className="hover:text-ember">Staff</Link>
             <a href={HOTEL.social.facebook} target="_blank" rel="noreferrer" className="hover:text-ember">Facebook</a>
           </div>
         </div>
