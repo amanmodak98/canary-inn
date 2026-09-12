@@ -2,7 +2,10 @@ import { ImageResponse } from "next/og";
 import { HOTEL } from "@/lib/hotel";
 import { IMAGES } from "@/data/images";
 
-export const runtime = "edge";
+// Use the Node.js runtime so we can resolve local /hotel/* images at build
+// time (the data/images module reads the filesystem). Slightly slower than
+// edge for image generation, but only runs once per deploy.
+export const runtime = "nodejs";
 export const alt = `${HOTEL.name} ${HOTEL.address.city} — Hotel, Restaurant & Bar`;
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";

@@ -1,7 +1,82 @@
-// Curated hospitality imagery. Stable Unsplash photo IDs.
+// Curated hospitality imagery for Canary Inn Hazaribagh.
+//
+// This file is intentionally pure data (no filesystem access) so it can be
+// imported from server components, client components, edge routes and
+// metadata endpoints without bundling issues.
+//
+// To swap a slot for a real hotel photo:
+//   1. Drop the photo into /public/hotel/ with the matching filename stem
+//      (see /public/hotel/DROPPOINT.md and SLOT_TO_FILE below).
+//   2. Run `npm run images:wire` (or just `npm run build` — the prebuild
+//      script does it automatically).
+//
+// `scripts/wire-local-images.js` rewrites the URLs in this file in place,
+// replacing each Unsplash fallback with `/hotel/<basename>.<ext>` whenever a
+// matching file exists in /public/hotel/.
 
-const u = (id: string, w = 1600) =>
+const u = (id: string, w = 1600): string =>
   `https://images.unsplash.com/photo-${id}?auto=format&fit=crop&w=${w}&q=80`;
+
+// Local-file basename for each slot. Mirrors the keys in IMAGES below.
+// Keep in sync with /public/hotel/DROPPOINT.md.
+export const SLOT_TO_FILE: Record<string, string> = {
+  "hero.primary": "hero-primary",
+  "hero.secondary": "hero-secondary",
+  "rooms.standard": "room-standard",
+  "rooms.deluxe": "room-deluxe",
+  "rooms.superDeluxe": "room-superdeluxe",
+  "rooms.suite": "room-suite",
+  "rooms.bed": "room-bed",
+  "rooms.bath": "room-bath",
+  "rooms.interior": "room-interior",
+  "rooms.window": "room-window",
+  "rooms.work": "room-bed",
+  "rooms.lounge": "room-lounge",
+  "dining.restaurant": "dining-restaurant",
+  "dining.table": "dining-restaurant",
+  "dining.plate": "dining-plate",
+  "dining.cocktail": "dining-cocktail",
+  "dining.chef": "dining-chef",
+  "dining.ambience": "dining-restaurant",
+  "dining.breakfast": "dining-breakfast",
+  "dining.dessert": "dining-dessert",
+  "dining.biryani": "dining-biryani",
+  "dining.thali": "dining-thali",
+  "dining.indian": "dining-indian",
+  "dining.chinese": "dining-chinese",
+  "dining.soups": "dining-soups",
+  "dining.bread": "dining-bread",
+  "dining.coffee": "dining-coffee",
+  "dining.drinks": "dining-drinks",
+  "dining.barLounge": "dining-bar-lounge",
+  "dining.liveMusic": "dining-live-music",
+  "amenities.pool": "amenity-pool",
+  "amenities.spa": "gallery-spa",
+  "amenities.gym": "gallery-spa",
+  "amenities.parking": "exterior-day",
+  "amenities.wifi": "lobby",
+  "amenities.conference": "amenity-conference",
+  "amenities.garden": "exterior-day",
+  "amenities.reception": "amenity-reception",
+  "gallery.exteriorDay": "exterior-day",
+  "gallery.exteriorNight": "exterior-night",
+  "gallery.lobby": "lobby",
+  "gallery.pool": "amenity-pool",
+  "gallery.restaurant": "dining-restaurant",
+  "gallery.bar": "dining-bar",
+  "gallery.suite": "room-suite",
+  "gallery.room": "room-standard",
+  "gallery.breakfast": "dining-breakfast",
+  "gallery.plate": "dining-plate",
+  "gallery.cocktail": "dining-cocktail",
+  "gallery.citySky": "location-hazaribagh",
+  "gallery.details": "lobby",
+  "gallery.service": "lobby",
+  "gallery.food": "dining-plate",
+  "gallery.spa": "gallery-spa",
+  "location.hazaribagh": "location-hazaribagh",
+  "location.canaryHill": "location-canary-hill",
+};
 
 export const IMAGES = {
   hero: {

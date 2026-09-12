@@ -4,13 +4,16 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
+    "prebuild": "node scripts/wire-local-images.js",
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
     "db:generate": "prisma generate",
     "db:push": "prisma db push",
     "db:seed": "tsx prisma/seed.ts",
-    "cron:cleanup": "curl -X POST -H \"Authorization: Bearer $CRON_SECRET\" $NEXTAUTH_URL/api/cron/cleanup-orders"
+    "cron:cleanup": "curl -X POST -H \"Authorization: Bearer $CRON_SECRET\" $NEXTAUTH_URL/api/cron/cleanup-orders",
+    "images:wire": "node scripts/wire-local-images.js",
+    "images:status": "node scripts/wire-local-images.js --status"
   },
   "dependencies": {
     "@prisma/client": "^5.22.0",
